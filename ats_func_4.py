@@ -2,6 +2,7 @@ import json
 import google.generativeai as genai
 import os
 import pdfplumber
+import pandas as pd
 import re
 import time
 from dotenv import load_dotenv
@@ -108,7 +109,7 @@ def calculate_experience(experiences):
     """Calculate total relevant experience with merged date ranges (FIXED)"""
     try:
         intervals = []
-        # 1. Collect relevant experiences
+        #Collect relevant experiences
         for exp in experiences:
             if not exp.get("relevant", False):
                 continue
@@ -123,8 +124,9 @@ def calculate_experience(experiences):
         #Sort intervals by start date
         sorted_intervals = sorted(intervals, key=lambda x: x[0])
         
-        # 3. Merge overlapping intervals
-        merged = [sorted_intervals[0]] 
+        # Merge overlapping intervals
+        merged = [sorted_intervals[0]]
+        print(merged)
         
         for current in sorted_intervals[1:]:
             last = merged[-1]
@@ -139,7 +141,7 @@ def calculate_experience(experiences):
             else:
                 merged.append(current)
 
-        # 4. Calculate total duration
+        # Calculate total duration
         total_months = 0
         for start, end in merged:
             delta = relativedelta(end, start)
@@ -160,7 +162,7 @@ def calculate_stability(experiences):
             if not exp.get("relevant", False):
                 continue
 
-            start = parse_date(exp.get("start", "01/2000"))
+            start = parse_date(exp.get("start", "Present"))
             end = parse_date(exp.get("end", "Present"))
             months = (
                 relativedelta(end, start).years * 12 + relativedelta(end, start).months
@@ -205,12 +207,14 @@ def get_match_percentage(job_desc, resume_data):
         1. Match percentage (0-100) from {resume_data} and job description. Give consistent score according to the keyboard and semantic matching of skills, education and skills.
     
         Consider these factors:
-        - Skills match: {resume_data['skills']}
-        - Education: {resume_data['education']}
-        - Experience: {resume_data['total_experience']} years vs job requirements
+        - Skills match: {resume_data['skills']} vs requirements/ required skills in job description
+        - Education: {resume_data['education']} vs required education qualification in job description
+        - Experience: {resume_data['total_experience']} years vs required job requirements
         - Position relevance: {[e['position'] for e in resume_data['experience']]}
         - Keyword presence
         - Career stability
+        - Calulate match by considering these criteria. IF skills, education, experience all matches with the job description then rate that resume high,
+        if it doesnot match at all then rate it low, else rate it from the given factors. Try to match the keywords and find the similarity consistently. 
     
     Return EXACTLY this JSON format:
     {{
@@ -226,6 +230,7 @@ def get_match_percentage(job_desc, resume_data):
         "weaknesses": ["list", "of", "weaknesses"],
         "detailed_analysis": "paragraph explaining scoring rationale"
     }}
+   
     
     Job Description:
     {job_desc[:10000]}
@@ -263,8 +268,13 @@ def analyze_resume(file_path, job_description):
         resume_data = extract_structured_data(text)
         total_exp = calculate_experience(resume_data.get("experience", []))
         resume_data["total_experience"] = total_exp
-        
+        print("*****************************************************************")
+        print(resume_data)
+        print("*****************************************************************")
         scores = get_match_percentage(job_description, resume_data)
+        print("###################################################################")
+        print(scores)
+        print("###################################################################")
 
         return {
             "Overall_Match": scores["match"],
