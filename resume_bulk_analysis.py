@@ -4,7 +4,7 @@ import os
 import time
 import random
 import json
-from ats_func_4 import analyze_resume
+from ats_func import analyze_resume
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -34,7 +34,9 @@ def update_database(id_value, overall_match):
                 """
                 cursor.execute(write_query, (overall_match, id_value))
                 connection.commit()
+                
     except Exception as e:
+
         print(f"Database update failed for ID {id_value}: {str(e)}")
 
 
@@ -50,6 +52,8 @@ def process_resumes(input_file, output_file):
             time.sleep(delay)
 
             result = analyze_resume(row["RESUME"], row["JOBDESCRIPTION"])
+
+            
 
             results.append(
                 {
@@ -69,6 +73,7 @@ def process_resumes(input_file, output_file):
 
             print(f"Processed: {row['APPLICANT']}")
 
+            # directly updates every calculated result into database.
             update_database(row["ID"], result["Overall_Match"])
 
         except Exception as e:
@@ -89,18 +94,21 @@ def process_resumes(input_file, output_file):
                 }
             )
 
+    
+
     pd.DataFrame(results).to_excel(output_file, index=False)
     print(f"Analysis complete. Results saved to {output_file}")
 
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    with get_db_connection() as connection:
-        query = "SELECT * FROM RESUME_DETAILS WHERE FLAG='N'"
-        df = pd.read_sql(query, con=connection)
-        df.to_excel("data_extracted_from_database.xlsx", index=False)
+#     with get_db_connection() as connection:
+#         query = "SELECT * FROM RESUME_DETAILS WHERE FLAG='N'"
+#         # query = "SELECT * FROM RESUME_DETAILS"
+#         df = pd.read_sql(query, con=connection)
+#         df.to_excel("data_extracted_from_database.xlsx", index=False)
 
-    process_resumes(
-        input_file="data_extracted_from_database.xlsx",
-        output_file="new_result_from_extracted_data_5.xlsx",
-    )
+#     process_resumes(
+#         input_file="data_extracted_from_database.xlsx",
+#         output_file="new_result_from_extracted_data_5.xlsx",
+#     )

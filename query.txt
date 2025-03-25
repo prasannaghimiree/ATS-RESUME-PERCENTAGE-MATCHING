@@ -33,3 +33,10 @@ CREATE TABLE "HRIS_VACANCY"
 CREATE VIEW REQUIRED_RESUME_DETAILS as
 select a.FULL_NAME, a.POSITION, b.DESCRIPTION, a.RESUME_PATH from HRIS_VACANCY_APPLICATION a JOIN HRIS_VACANCY b
 on a.ID = b.VACANCY_ID
+
+# query to reset
+update resume_details
+set flag='N' where flag ='Y'
+
+update resume_details
+set PERCENTAGE_MATCH=NULL where flag='N'

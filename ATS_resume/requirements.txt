@@ -1,0 +1,11 @@
+ATS_resume/
+│── main.py  (Main execution file)
+│── resume_bulk_analysis.py  (Processes multiple resumes)
+│── similarity.py  (Handles job match calculation using Doc2Vec)
+│── stability.py  (Computes job stability score)
+│── utils.py  (Helper functions)
+│── data/
+│   ├── resumes/  (Folder containing resume text files)
+│   ├── job_description.txt  (Job description file)
+│── results/
+│   ├── resume_analysis_results.xlsx  (Final output)

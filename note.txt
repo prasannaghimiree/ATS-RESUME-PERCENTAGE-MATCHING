@@ -1,0 +1,4 @@
+### Here files needed ats_func.py, resume_bulk_analysis.py and app.py
+##app.py:
+    - AT APP.py there is a GET route API that connects to database , execute select query, fetch data and save it into excel file. 
+    - And it calls process_resume function.

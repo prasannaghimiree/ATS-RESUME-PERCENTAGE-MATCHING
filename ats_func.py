@@ -52,6 +52,7 @@ def extract_structured_data(text):
     Extract resume data as VALID JSON with:
     Work experience (exclude freelancing/voluntary/college/Teaching/Intern/Internship/fellowship/Instructing/Projects work and out of context/field experience). For each position, label it as false in relevant.
     Terminologies similar to skills which are mention in job experience, projects are also contedas a skills.
+    Not only keywords, if someone has done something in work experience or projects like (ML PIpeline Creaion, API testing , Integration parts ..... etc) then include it in skill section too.
     {{
         "skills": ["Python", "Machine Learning", ...],
         "education": ["Bachelor's in Computer Science", ...],
@@ -215,6 +216,13 @@ def get_match_percentage(job_desc, resume_data):
         - Career stability
         - Calulate match by considering these criteria. IF skills, education, experience all matches with the job description then rate that resume high,
         if it doesnot match at all then rate it low, else rate it from the given factors. Try to match the keywords and find the similarity consistently. 
+        - If tehre is start and enddate for education then it is completed. (For example: if tehre is start and enddate for masters program then masters is completed)
+        - Always match perfectly and relatively. While matching follow the same pattern. Do not show weakness if there is no weaknesses. 
+        - Give me the range from (0 to 100%). If everything is matching them give them solid 100% and if nothing is matching give them solid 0%, else give inbetween.
+        - Donot show weakness if there is not any weaknesses.
+        - Don't take maters degree as an attribute if master degree is not required or optional in job description. Donot evaluate resume from this attribute.
+        - At analysis algo give the explaination why the match_percentage if this. Also give proper explaination of match percenatge calculation.
+        - If the resume details doesnot posses any or relevant keywords, experience according to job description then give them very low score. Donot give score if it match very few keywords. Give such resume nearly equal to 0.
     
     Return EXACTLY this JSON format:
     {{
@@ -259,6 +267,8 @@ def get_match_percentage(job_desc, resume_data):
 
     return{"match":0,"stability":0,"score_breakdown":0,"strengths":0,"weaknesses":0,"analysis":0}
 
+
+
 def analyze_resume(file_path, job_description):
     """Main analysis function with explainable AI features"""
     try:
@@ -268,11 +278,14 @@ def analyze_resume(file_path, job_description):
         resume_data = extract_structured_data(text)
         total_exp = calculate_experience(resume_data.get("experience", []))
         resume_data["total_experience"] = total_exp
+        
         print("*****************************************************************")
+        print("The details Extracted from resume i.e. skills, education and experience:")
         print(resume_data)
         print("*****************************************************************")
         scores = get_match_percentage(job_description, resume_data)
         print("###################################################################")
+        print("The AI percentage matching with analysis result: ")
         print(scores)
         print("###################################################################")
 
@@ -289,6 +302,7 @@ def analyze_resume(file_path, job_description):
             "Education": resume_data.get("education", []),
             "Relevant_Experience": [e for e in resume_data.get("experience", []) if e.get("relevant", False)]
         }
+    
 
     except Exception as e:
         print(f"Analysis failed: {str(e)[:50]}")
@@ -305,3 +319,6 @@ def analyze_resume(file_path, job_description):
             "Education": [],
             "Relevant_Experience": []
         }
+    
+
+    
